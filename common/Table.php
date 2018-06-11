@@ -6,10 +6,12 @@ use think\Db;
 class Table
 {
 	public $table;
+	public $table_name;
 	
 	public function __construct($table)
 	{
 		$this -> table = Db::table($table);
+		$this -> table_name = $table;
 	}
 	
 	/**
@@ -17,10 +19,30 @@ class Table
 	 * @param unknown $where
 	 * @param unknown $field
 	 */
-	public function getList($where, $field){
+	public function getList($where, $field, $order){
 		$list = $this -> table
 		  	-> field($field)
 		  	-> where($where)
+		  	-> order($order)
+		  	-> select();
+		return $list;
+	}
+	
+	/**
+	 * 获取分页列表
+	 * @param unknown $page
+	 * @param unknown $page_size
+	 * @param unknown $where
+	 * @param unknown $field
+	 * @param unknown $order
+	 * @return unknown
+	 */
+	function getPageList($page, $page_size, $where, $field, $order){
+		$list = $this -> table
+			-> field($field)
+		  	-> where($where)
+		  	-> order($order)
+		  	-> page($page, $page_size)
 		  	-> select();
 		return $list;
 	}
@@ -60,6 +82,22 @@ class Table
 	}
 	
 	/**
+	 * 获取总数
+	 * @param unknown $where
+	 */
+	public function getCount($where, $field = ""){
+		var_dump($this->getTablePrimaryKey());
+		if(empty($field)){
+			$fields = $this->getTableFields();
+			$field = $fields[0];
+		}
+		$count = $this -> table
+			-> where($where)
+			-> count($field);
+		return $count;
+	}
+	
+	/**
 	 * 开启数据库事务
 	 */
 	public function startTrans(){
@@ -78,6 +116,23 @@ class Table
 	 */
 	public function rollback(){
 		Db::rollback();
+	}
+	
+	/**
+	 * 获取当前表的所有字段
+	 */
+	public function getTableFields(){
+		$fields = Db::getTableInfo($this -> table_name, 'fields');
+		return $fields;
+	}
+	
+	/**
+	 * 获取当前表主键
+	 * return 有则返回主键 无则返回null
+	 */
+	public function getTablePrimaryKey(){
+		$pk = Db::getTableInfo($this -> table_name, 'pk');
+		return $pk;
 	}
 	
 }
