@@ -8,6 +8,6 @@ class Init
 {
 	public function run(){
 		// 注册命名空间
-		Loader::addNamespace("common", "common/");
+// 		Loader::addNamespace("common", "common/");
 	}
 }
